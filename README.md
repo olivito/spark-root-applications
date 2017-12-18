@@ -16,3 +16,38 @@ sources for BenchMarksApp are here: src/main/scala/org/dianahep/sparkrootapplica
 - ReductionExample App
 - AODPublicExample App
 - Bacon/Higgs Example Apps
+
+## Compiling Applications
+
+Make sure sbt is installed.  See [the documentation here](http://www.scala-sbt.org/1.0/docs/Setup.html).
+
+Check out this repository:
+```
+git clone git@github.com:olivito/spark-root-applications.git
+cd spark-root-applications 
+```
+
+Build the jar file containing all the applications:
+```
+sbt package
+```
+
+## Running Applications
+
+Here's an example command to run the DimuonReductionAOD application in local mode (e.g. on a laptop).
+
+```
+spark-submit \
+--class org.dianahep.sparkrootapplications.examples.DimuonReductionAOD \
+--master local[1] \
+--packages org.diana-hep:spark-root_2.11:0.1.15 \
+target/scala-2.11/spark-root-applications_2.11-0.0.3.jar \
+file:/home/olivito/datasci/spark/data/dy_AOD.root
+```
+
+The example input file comes from the CMS 2012 open dataset.  To copy it on lxplus from eos (note that it's a 4 GB file):
+```
+eoscp root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_RD1_START53_V7N-v1/20000/DCF94DC3-42CE-E211-867A-001E67398011.root /tmp/${USER}/dy_AOD.root
+```
+
+For more information on spark-submit, see [the documentation here](https://spark.apache.org/docs/latest/submitting-applications.html).
