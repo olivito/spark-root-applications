@@ -51,3 +51,39 @@ eoscp root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/D
 ```
 
 For more information on spark-submit, see [the documentation here](https://spark.apache.org/docs/latest/submitting-applications.html).
+
+### Running on CERN Analytix Cluster
+
+Setup:
+```
+ssh lxplus.cern.ch
+ssh analytix.cern.ch
+source /cvmfs/sft.cern.ch/lcg/views/LCG_88/x86_64-slc6-gcc49-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/etc/hadoop-confext/hadoop-setconf.sh analytix
+export KRB5CCNAME=FILE:/tmp/${USER}_krb
+kinit -c /tmp/${USER}_krb
+```
+
+Running Viktor's example application:
+```
+spark-submit --master yarn \
+--class "org.dianahep.sparkrootapplications.examples.ReductionExampleApp" \
+--files $KRB5CCNAME#krbcache \
+--conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
+--conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
+--packages org.diana-hep:spark-root_2.11:0.1.11,org.diana-hep:histogrammar-sparksql_2.11:1.0.3 \
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.3.jar \
+root://eospublic.cern.ch://eos/opendata/cms/Run2010B/MuOnia/AOD/Apr21ReReco-v1/0000/FEF1B99B-BF77-E011-B0A0-E41F1318174C.root
+```
+
+Running my DimuonReductionAOD application.  Note that this only works properly running over a full directory, not on a single file, because of some eos/xrootd issue at the moment..
+```
+spark-submit --master yarn \
+--class org.dianahep.sparkrootapplications.examples.DimuonReductionAOD \
+--packages org.diana-hep:spark-root_2.11:0.1.15 \
+--conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
+--files $KRB5CCNAME#krbcache \
+--conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.6.jar \
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/ZZTo4mu_8TeV-powheg-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/
+```
