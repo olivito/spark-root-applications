@@ -309,7 +309,7 @@ object DimuonReductionAOD {
     val date = dateFormatter.format(now)
 
     // create filenames
-    val parquetFilename = "file:/tmp/" + userName + "_" + date + "_testReduced.parquet"
+    val parquetFilename = "file:/tmp/" + userName + "_" + date + "_testDimuonReduced.parquet"
     dsMll.write.format("parquet").save(parquetFilename)
 
     // stop the session/context
