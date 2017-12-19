@@ -205,7 +205,7 @@ object DimuonReductionAOD {
     innerTrack_ : Record3,
     outerTrack_ : Record5,
     globalTrack_ : Record7,
-    recoMuons_muons__RECO_obj_refittedTrackMap_ : Map[Int, Record9],
+    recoMuons_muons__RECO_obj_refittedTrackMap_ : scala.collection.Map[Int, Record9],
     bestTrackType_ : Int,
     calEnergy_ : Record11,
     combinedQuality_ : Record18,
