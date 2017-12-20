@@ -272,6 +272,8 @@ object DimuonReductionAOD {
   // main function to be executed
   def main(args: Array[String]) {
     val inputPath = args(0)
+    val outputPath = args(1)
+    val sampleName = args(2)
     val spark = SparkSession.builder()
       .appName("AOD Public DS Example")
       .getOrCreate()
@@ -281,6 +283,10 @@ object DimuonReductionAOD {
 
     // get the Dataset corresponding to the input root file
     val ds = spark.sqlContext.read.option("tree", "Events").root(inputPath)
+
+    // count the number of events before any selection, for normalization later
+    //  store in a Dataframe to easily write to a parquet file..
+    val dfCount = Seq(ds.count).toDF("count")
 
     // select the muon branches and convert to Dataset[Event]
     val dsMuons = ds.select("recoMuons_muons__RECO_.recoMuons_muons__RECO_obj").toDF("muons").as[Event]
@@ -296,21 +302,21 @@ object DimuonReductionAOD {
     val dsDimuonsSel = dsMuonsSel.filter(event => passEventSel(event))
 
     // compute invariantmass for passing muons
-    val dsMll = dsDimuonsSel.map{
+    val dfMll = dsDimuonsSel.map{
       event => invariantMass(event.muons(0),event.muons(1))
-    }
-
-    // get current user name
-    val userName = System.getProperty("user.name")
+    }.toDF("mll")
 
     // get current date and time
     val now = Calendar.getInstance().getTime();
     val dateFormatter = new SimpleDateFormat("YYMMdd_HHmmss");
     val date = dateFormatter.format(now)
 
-    // create filenames
-    val parquetFilename = "file:/tmp/" + userName + "_" + date + "_testDimuonReduced.parquet"
-    dsMll.write.format("parquet").save(parquetFilename)
+    // create filenames, write parquet files
+    //val outputPath = "hdfs:/cms/bigdatasci/olivito/sparktest/"
+    val parquetFilenameMll = outputPath + "/dimuonReduced_" + sampleName + "_" + date + "/mll.parquet"
+    dfMll.write.format("parquet").save(parquetFilenameMll)
+    val parquetFilenameCount = outputPath + "/dimuonReduced_" + sampleName + "_" + date + "/count.parquet"
+    dfCount.write.format("parquet").save(parquetFilenameCount)
 
     // stop the session/context
     spark.stop

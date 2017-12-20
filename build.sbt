@@ -4,7 +4,7 @@ organization := "org.diana-hep"
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-version := "0.0.6"
+version := "0.0.8"
 
 isSnapshot := true
 

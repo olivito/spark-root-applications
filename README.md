@@ -41,8 +41,10 @@ spark-submit \
 --class org.dianahep.sparkrootapplications.examples.DimuonReductionAOD \
 --master local[1] \
 --packages org.diana-hep:spark-root_2.11:0.1.15 \
-target/scala-2.11/spark-root-applications_2.11-0.0.3.jar \
-file:/home/olivito/datasci/spark/data/dy_AOD.root
+target/scala-2.11/spark-root-applications_2.11-0.0.8.jar \
+file:/home/olivito/datasci/spark/data/dy_AOD.root \
+file:/tmp/ \
+DYTest
 ```
 
 The example input file comes from the CMS 2012 open dataset.  To copy it on lxplus from eos (note that it's a 4 GB file):
@@ -84,6 +86,19 @@ spark-submit --master yarn \
 --conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
 --files $KRB5CCNAME#krbcache \
 --conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
-/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.6.jar \
-root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/ZZTo4mu_8TeV-powheg-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.8.jar \
+root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/ZZTo4mu_8TeV-powheg-pythia6/AODSIM/PU_RD1_START53_V7N-v1/20000/ \
+hdfs:/cms/bigdatasci/olivito/sparktest/ \
+ZZTo4mu
+```
+
+## Merging output parquet files
+
+Using the library `parquet-tools`. Note that prefix `hdfs:` isn't necessary here.
+```
+hadoop jar \
+/afs/cern.ch/user/o/olivito/public/spark/parquet-tools-1.9.0.jar \
+merge \
+/cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll.parquet/ \
+/cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll_merged.parquet/merged.parquet
 ```
