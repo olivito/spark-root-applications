@@ -78,7 +78,16 @@ spark-submit --master yarn \
 root://eospublic.cern.ch://eos/opendata/cms/Run2010B/MuOnia/AOD/Apr21ReReco-v1/0000/FEF1B99B-BF77-E011-B0A0-E41F1318174C.root
 ```
 
-Running my DimuonReductionAOD application.  Note that this only works properly running over a full directory, not on a single file, because of some eos/xrootd issue at the moment..
+Syntax for running DimuonReductionAOD:
+```
+spark-submit [options]
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.8.jar \
+<input_directory> \
+<output_directory> \
+<output_label>
+```
+
+Example of running the DimuonReductionAOD application.  Note that this only works properly running over a full directory, not on a single file, because of some eos/xrootd issue at the moment..
 ```
 spark-submit --master yarn \
 --class org.dianahep.sparkrootapplications.examples.DimuonReductionAOD \
@@ -92,6 +101,20 @@ hdfs:/cms/bigdatasci/olivito/sparktest/ \
 ZZTo4mu
 ```
 
+Another example, running over all the Run2012B SingleMu data. Note the wildcard usage to grab only directories with root files (directories and not files, because of the bug mentioned above). 
+```
+spark-submit --master yarn \
+--class org.dianahep.sparkrootapplications.examples.DimuonReductionAOD \
+--packages org.diana-hep:spark-root_2.11:0.1.15 \
+--conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
+--files $KRB5CCNAME#krbcache \
+--conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.8.jar \
+root://eospublic.cern.ch//eos/opendata/cms/Run2012B/SingleMu/AOD/22Jan2013-v1/*0*/ \
+hdfs:/cms/bigdatasci/olivito/sparktest/ \
+SingleMu_Run2012B
+```
+
 ## Merging output parquet files
 
 Using the library `parquet-tools`. Note that prefix `hdfs:` isn't necessary here.
@@ -102,3 +125,5 @@ merge \
 /cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll.parquet/ \
 /cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll_merged.parquet/merged.parquet
 ```
+
+Also note that this can only handle a limited number of files.  500 is ok, 4500 is not.
