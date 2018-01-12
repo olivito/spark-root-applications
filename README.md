@@ -117,7 +117,7 @@ SingleMu_Run2012B
 
 ### Running on multiple samples in one spark job
 
-Small scale example for running over MC multiple samples in one spark job. The samples are specified in the input csv file, here a subset of ZZTo4mu and ZZTo2e2mu. 
+Small scale example for running over MC multiple samples in one spark job. The samples are specified in the input csv file, here a subset of SingleMu_Run2012B data and ZZTo4mu MC. 
 ```
 spark-submit --master yarn \
 --class org.dianahep.sparkrootapplications.examples.DimuonReductionAODMultiDataset \
@@ -146,4 +146,4 @@ merge \
 /cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll_merged.parquet/merged.parquet
 ```
 
-Also note that this can only handle a limited number of files.  500 is ok, 4500 is not.
+Also note that this can only handle a limited number of files.  1000 is ok, 4500 is not.
