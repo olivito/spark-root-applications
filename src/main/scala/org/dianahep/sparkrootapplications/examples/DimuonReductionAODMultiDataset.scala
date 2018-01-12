@@ -320,19 +320,21 @@ object DimuonReductionAODMultiDataset {
     val neventsBuf = scala.collection.mutable.ListBuffer.empty[Long]
 
     // loop over samples to create big dataset. Note that dsAll still has class Dataset (not DataFrame) at the end.
-    var dsAll: org.apache.spark.sql.DataFrame = null;
+    var dsAll: org.apache.spark.sql.Dataset[Event] = null;
     for (sample <- sampleBuf) {
       // add column to keep track of sampleID
       val dsTemp = spark.sqlContext.read.option("tree", "Events").root(sample.path)
         .withColumn("sampleID",lit(sample.sampleID))
+      // select the muon branches and convert to Dataset[Event]
+      val dsMuons = dsTemp.select("recoMuons_muons__RECO_.recoMuons_muons__RECO_obj","sampleID").toDF("muons","sampleID").as[Event]
       // count nevents in each sample
-      neventsBuf += dsTemp.count
+      neventsBuf += dsMuons.count
       if (dsAll!= null) {
-        dsAll = dsAll.union(dsTemp)
+        dsAll = dsAll.union(dsMuons)
       } else {
-        dsAll = dsTemp
+        dsAll = dsMuons
       }
-    }
+    } // loop over samples
 
     // store the number of events before any selection, along with basic sample info, for normalization later
     // store in a Dataframe to easily write to a parquet file..
@@ -341,11 +343,8 @@ object DimuonReductionAODMultiDataset {
     }
     val dsSamples = sc.parallelize(samplesCounts).toDF()
 
-    // select the muon branches and convert to Dataset[Event]
-    val dsMuons = dsAll.select("recoMuons_muons__RECO_.recoMuons_muons__RECO_obj","sampleID").toDF("muons","sampleID").as[Event]
-
     // select passing muon objects
-    val dsMuonsSel = dsMuons.map{
+    val dsMuonsSel = dsAll.map{
       event =>
       val pass_muons = event.muons.filter(muon => passMuonSel(muon))
       Event(pass_muons,event.sampleID)

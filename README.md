@@ -121,26 +121,18 @@ Small scale example for running over MC multiple samples in one spark job. The s
 ```
 spark-submit --master yarn \
 --class org.dianahep.sparkrootapplications.examples.DimuonReductionAODMultiDataset \
---packages org.diana-hep:spark-root_2.11:0.1.15 \
+--packages org.diana-hep:spark-root_2.11:0.1.16 \
 --conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
 --files $KRB5CCNAME#krbcache \
 --conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
-/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.9.jar \
+/afs/cern.ch/user/o/olivito/public/spark/spark-root-applications_2.11-0.0.10.jar \
 /afs/cern.ch/user/o/olivito/public/spark/input_datasets_cluster_test.csv \
 hdfs:/cms/bigdatasci/olivito/sparktest/ 
 ```
 
-Because the data and MC AODs have different numbers of branches in the root trees, the corresponding Spark Datasets cannot simply be merged in a single job.  For now, I'm handling this by just defining two separate spark jobs, one for data and one for MC.
-
-To run over data, use this input csv file:
+To run over the full set of data and MC for the dimuon analysis, use this input file:
 ```
-/afs/cern.ch/user/o/olivito/public/spark/input_datasets_data.csv
-```
-
-To run over MC, use this file:
-```
-/afs/cern.ch/user/o/olivito/public/spark/input_datasets_mc.csv
-
+/afs/cern.ch/user/o/olivito/public/spark/input_datasets.csv
 ```
 
 ## Merging output parquet files
