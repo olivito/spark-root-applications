@@ -337,11 +337,21 @@ object DimuonReductionAODMultiDataset {
     } // loop over samples
 
     // store the number of events before any selection, along with basic sample info, for normalization later
-    // store in a Dataframe to easily write to a parquet file..
+    // store in a Dataframe to easily write to a parquet file.. 
     val samplesCounts = (sampleBuf zip neventsBuf).map{
       case (sample,count) => SampleCount(sample.sampleID,sample.name,sample.xsec,count)
     }
     val dsSamples = sc.parallelize(samplesCounts).toDF()
+
+    // get current date and time
+    val now = Calendar.getInstance().getTime();
+    val dateFormatter = new SimpleDateFormat("YYMMdd_HHmmss");
+    val date = dateFormatter.format(now)
+
+    // write counts to output files
+    // is there a way to write a simple Seq to a parquet file instead?
+    val parquetFilenameCount = outputPath + "/dimuonReduced_" + date + "/count.parquet"
+    dsSamples.write.format("parquet").save(parquetFilenameCount)
 
     // select passing muon objects
     val dsMuonsSel = dsAll.map{
@@ -358,17 +368,10 @@ object DimuonReductionAODMultiDataset {
       event => Output(invariantMass(event.muons(0),event.muons(1)),event.sampleID)
     }.toDF()
 
-    // get current date and time
-    val now = Calendar.getInstance().getTime();
-    val dateFormatter = new SimpleDateFormat("YYMMdd_HHmmss");
-    val date = dateFormatter.format(now)
-
     // create filenames, write parquet files
     //val outputPath = "hdfs:/cms/bigdatasci/olivito/sparktest/"
     val parquetFilenameMll = outputPath + "/dimuonReduced_" + date + "/mll.parquet"
     dsMll.write.format("parquet").save(parquetFilenameMll)
-    val parquetFilenameCount = outputPath + "/dimuonReduced_" + date + "/count.parquet"
-    dsSamples.write.format("parquet").save(parquetFilenameCount)
 
     // stop the session/context
     spark.stop
