@@ -146,4 +146,9 @@ merge \
 /cms/bigdatasci/olivito/sparktest/dimuonReduced_ZZTo4mu_171220_134613/mll_merged.parquet/merged.parquet
 ```
 
-Also note that this can only handle a limited number of files.  1000 is ok, 4500 is not.
+Note that this can only handle a limited number of files.  1000 is ok, 4500 is not.  To merge a larger number of files, you can use the script below, located in the `scripts` subdirectory.  It breaks up the merge jobs into 500 file chunks for a first round of merging, then does a final round of merging to end up with a single file.
+```
+source scripts/mergeHadoopFiles.sh \
+/cms/bigdatasci/olivito/sparktest/dimuonReduced_180123_142939/mll.parquet \
+/cms/bigdatasci/olivito/sparktest/dimuonReduced_180123_142939/mll_merged.parquet
+```
