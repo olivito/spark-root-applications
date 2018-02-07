@@ -54,7 +54,7 @@ eoscp root://eospublic.cern.ch//eos/opendata/cms/MonteCarlo2012/Summer12_DR53X/D
 
 For more information on spark-submit, see [the documentation here](https://spark.apache.org/docs/latest/submitting-applications.html).
 
-### Running on CERN Analytix Cluster
+### Running on CERN Analytix Cluster with scala code
 
 Setup:
 ```
@@ -133,6 +133,27 @@ hdfs:/cms/bigdatasci/olivito/sparktest/
 To run over the full set of data and MC for the dimuon analysis, use this input file:
 ```
 /afs/cern.ch/user/o/olivito/public/spark/input_datasets.csv
+```
+
+## Running Applications in pyspark
+
+The environment setup on the analytix cluster is the same as for running with scala.
+
+There's an example python application to run the dimuon analysis in the `python/` subdirectory.  To run on a couple datasets for a test:
+```
+spark-submit --master yarn \
+--packages org.diana-hep:spark-root_2.11:0.1.16 \
+--conf spark.driver.extraClassPath="/usr/lib/hadoop/EOSfs.jar" \
+--files $KRB5CCNAME#krbcache \
+--conf spark.executorEnv.KRB5CCNAME='FILE:$PWD/krbcache' \
+DimuonReductionAODMultiDataset.py \
+/afs/cern.ch/user/o/olivito/public/spark/input_datasets_cluster_test_headers.csv \
+hdfs:/cms/bigdatasci/olivito/sparktest/
+```
+
+To run on all datasets, the input csv file can be changed to:
+```
+/afs/cern.ch/user/o/olivito/public/spark/input_datasets_headers.csv 
 ```
 
 ## Merging output parquet files
