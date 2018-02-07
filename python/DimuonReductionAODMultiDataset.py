@@ -32,12 +32,8 @@ def invariantMass(mu1, mu2):
     return sqrt(2*mu1.pt_*mu2.pt_*(cosh(mu1.eta_-mu2.eta_)-cos(mu1.phi_-mu2.phi_)))
     
 def handleEvent(event):
-    # reject if < 2 muons
-    if len(events.muons) < 2: return []
     # first select muons
     selMuons = [muon for muon in event.muons if passMuonSel(muon)]
-    # reject if < 2 sel muons
-    if len(selMuons) < 2: return []
     # sort in decreasing order of muon pT - makes a noticeable difference in how many events pass
     # if not sorting, can reproduce the scala results exactly
     sortedMuons = sorted(selMuons, key=lambda muon: -muon.pt_)
